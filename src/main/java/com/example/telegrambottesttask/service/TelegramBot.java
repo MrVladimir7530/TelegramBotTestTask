@@ -1,16 +1,18 @@
 package com.example.telegrambottesttask.service;
 
+
 import com.example.telegrambottesttask.config.BotConfig;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-@Slf4j
 @Service
 public class TelegramBot extends TelegramLongPollingBot {
+    private Logger log = LoggerFactory.getLogger(TelegramBot.class);
 
     private final BotConfig CONFIG;
 
@@ -46,7 +48,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error(e.getMessage());
+            log.error("ERROR: " + e.getMessage());
         }
     }
 }
