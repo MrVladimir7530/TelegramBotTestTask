@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users(
 
 --changeset volkov:create_table_users_message
 CREATE TABLE IF NOT EXISTS users_message(
-    users_message_id bigint NOT NULL PRIMARY KEY,
+    users_message_id bigserial NOT NULL PRIMARY KEY,
     sent_message character varying(255),
     received_message character varying(255),
     users_chat_id bigint NOT NULL,
