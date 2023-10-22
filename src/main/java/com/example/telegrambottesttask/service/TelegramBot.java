@@ -53,6 +53,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         String receivedMessage = "You wrote: " + sentMessage;
         prepareAndSendMessage(chatId, receivedMessage);
         saveUsersMessage(chatId, sentMessage, receivedMessage);
+
         Users users = usersRepository.findById(chatId).get();
         users.setLastMessageAt(LocalDateTime.now());
         usersRepository.save(users);

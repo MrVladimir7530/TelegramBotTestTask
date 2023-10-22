@@ -18,3 +18,21 @@ CREATE TABLE IF NOT EXISTS users_message(
     users_chat_id bigint NOT NULL,
     FOREIGN KEY (users_chat_id) REFERENCES users (chat_id)
 );
+
+--changeset volkov:create_table_daily_domains
+CREATE TABLE IF NOT EXISTS daily_domains(
+    daily_domains_id bigserial NOT NULL PRIMARY KEY,
+    domainname character varying(255),
+    hotness int,
+    price int,
+    x_value int,
+    yandex_tic int,
+    links int,
+    visitors int,
+    registrar character varying(255),
+    old int,
+    delete_date date,
+    rkn boolean,
+    judicial boolean,
+    block boolean
+);
