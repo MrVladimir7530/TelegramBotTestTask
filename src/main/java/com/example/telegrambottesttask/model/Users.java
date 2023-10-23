@@ -1,7 +1,6 @@
 package com.example.telegrambottesttask.model;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

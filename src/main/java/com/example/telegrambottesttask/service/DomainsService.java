@@ -2,15 +2,12 @@ package com.example.telegrambottesttask.service;
 
 import com.example.telegrambottesttask.model.DailyDomains;
 import com.example.telegrambottesttask.repository.DailyDomainsRepository;
-import com.example.telegrambottesttask.repository.UsersMessageRepository;
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,7 +36,7 @@ public class DomainsService {
     @Value("${url}")
     private String urlPath;
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 10 * * *")
     public void getDomains() {
         try {
             dailyDomainsRepository.deleteAll();

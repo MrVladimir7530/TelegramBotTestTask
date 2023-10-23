@@ -1,7 +1,5 @@
 package com.example.telegrambottesttask.model;
 
-import com.example.telegrambottesttask.config.MyDateTypeAdapter;
-import com.google.gson.annotations.JsonAdapter;
 import lombok.Data;
 
 import javax.persistence.*;
