@@ -2,8 +2,12 @@ package com.example.telegrambottesttask.service;
 
 import com.example.telegrambottesttask.model.DailyDomains;
 import com.example.telegrambottesttask.repository.DailyDomainsRepository;
+import com.example.telegrambottesttask.repository.UsersMessageRepository;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +23,18 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 
+@RequiredArgsConstructor
 @Service
-@PropertySource("bot.props")
+@PropertySource("application.properties")
 public class DomainsService {
     private Logger log = LoggerFactory.getLogger(DomainsService.class);
-    @Autowired
-    DailyDomainsRepository dailyDomainsRepository;
-    private Gson gson = new Gson();
+    private final DailyDomainsRepository dailyDomainsRepository;
+    private final TelegramBot telegramBot;
+    private static GsonBuilder builder = new GsonBuilder();
+    static{
+        builder.setDateFormat("yyyy-MM-dd");
+    }
+    private static Gson gson = builder.create();
 
     @Value("${url}")
     private String urlPath;
@@ -33,16 +42,16 @@ public class DomainsService {
     @Scheduled(cron = "0 * * * * *")
     public void getDomains() {
         try {
+            dailyDomainsRepository.deleteAll();
             InputStream is = new URL(urlPath).openStream();
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             String jsonText = readAll(rd);
             TypeToken<List<DailyDomains>> listTypeToken = new TypeToken<>(){};
             List<DailyDomains> dailyDomains = gson.fromJson(jsonText, listTypeToken);
-            dailyDomainsRepository.deleteAll();
             for (DailyDomains dailyDomain : dailyDomains) {
                 dailyDomainsRepository.save(dailyDomain);
             }
-
+            telegramBot.sendInformationThatTheDomainsHaveBeenSaved();
         } catch (Exception e) {
            log.error(e.getMessage());
         }

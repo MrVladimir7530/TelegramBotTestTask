@@ -4,11 +4,12 @@ package com.example.telegrambottesttask.service;
 import com.example.telegrambottesttask.config.BotConfig;
 import com.example.telegrambottesttask.model.Users;
 import com.example.telegrambottesttask.model.UsersMessage;
+import com.example.telegrambottesttask.repository.DailyDomainsRepository;
 import com.example.telegrambottesttask.repository.UsersMessageRepository;
 import com.example.telegrambottesttask.repository.UsersRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -17,40 +18,44 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class TelegramBot extends TelegramLongPollingBot {
     private Logger log = LoggerFactory.getLogger(TelegramBot.class);
-    @Autowired
-    private UsersRepository usersRepository;
-    @Autowired
-    private UsersMessageRepository usersMessageRepository;
+    private static final String START = "/start";
+    public static final String YOU_WROTE = "You wrote: ";
+    public static final String ERROR = "ERROR: ";
 
-    private final BotConfig CONFIG;
+    private final UsersRepository usersRepository;
 
-    public TelegramBot(BotConfig CONFIG) {
-        this.CONFIG = CONFIG;
-    }
+    private final UsersMessageRepository usersMessageRepository;
+
+    private final DailyDomainsRepository dailyDomainsRepository;
+
+    private final BotConfig config;
 
     @Override
     public String getBotUsername() {
-        return CONFIG.getBotName();
+        return config.getBotName();
     }
 
     @Override
     public String getBotToken() {
-        return CONFIG.getToken();
+        return config.getToken();
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.getMessage().getText().equals("/start")) {
+        if (update.getMessage().getText().equals(START)) {
             registerUser(update.getMessage());
         }
         Long chatId = update.getMessage().getChatId();
         String sentMessage = update.getMessage().getText();
-        String receivedMessage = "You wrote: " + sentMessage;
+        String receivedMessage = YOU_WROTE + sentMessage;
         prepareAndSendMessage(chatId, receivedMessage);
         saveUsersMessage(chatId, sentMessage, receivedMessage);
 
@@ -68,7 +73,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error("ERROR: " + e.getMessage());
+            log.error(ERROR, e);
         }
     }
 
@@ -87,7 +92,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             try {
                 usersRepository.save(user);
-                log.info("user saved: " + user);
+                log.info("user saved: {}", user);
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
@@ -106,10 +111,35 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         try {
             usersMessageRepository.save(usersMessage);
-            log.info("users message saved: " + usersMessage);
+            log.info("users message saved: {}", usersMessage);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(ERROR, e);
         }
 
+    }
+
+
+    public void sendInformationThatTheDomainsHaveBeenSaved() {
+        int countDomains = dailyDomainsRepository.getCountDomains();
+        SendMessage message = new SendMessage();
+        List<Users> all = usersRepository.findAll();
+        for (Users users : all) {
+            message.setChatId(String.valueOf(users.getChatId()));
+            String messageText = LocalDate.now() + ". Собрано " + countDomains + " доменов";
+            message.setText(messageText);
+            try {
+                execute(message);
+                saveMessageWithDomains(users, messageText);
+            } catch (Exception e) {
+                log.error(ERROR, e);
+            }
+        }
+    }
+
+    private void saveMessageWithDomains(Users users, String messageText) {
+        UsersMessage usersMessage = new UsersMessage();
+        usersMessage.setUsers(users);
+        usersMessage.setReceivedMessage(messageText);
+        usersMessageRepository.save(usersMessage);
     }
 }

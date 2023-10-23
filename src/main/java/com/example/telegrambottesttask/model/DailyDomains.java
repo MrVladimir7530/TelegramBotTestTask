@@ -1,11 +1,10 @@
 package com.example.telegrambottesttask.model;
 
+import com.example.telegrambottesttask.config.MyDateTypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
 import lombok.Data;
-import lombok.Value;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -23,8 +22,8 @@ public class DailyDomains {
     private int visitors;
     private String registrar;
     private int old;
-    @Column(name = "delete_date")
-    private LocalDate deleteDate;
+   @Column(name = "delete_date")
+    private Date deleteDate;
     private boolean rkn;
     private boolean judicial;
     private boolean block;

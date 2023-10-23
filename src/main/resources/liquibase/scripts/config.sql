@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS users(
     first_name character varying(255),
     last_name character varying(255),
     username character varying(255),
-    registered_at timestamp without time zone,
-    last_message_at timestamp without time zone
+    registered_at timestamp,
+    last_message_at timestamp
 );
 
 --changeset volkov:create_table_users_message
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS daily_domains(
     visitors int,
     registrar character varying(255),
     old int,
-    delete_date date,
+    delete_date timestamp,
     rkn boolean,
     judicial boolean,
     block boolean
